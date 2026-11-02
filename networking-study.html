@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Networks Ch.1–5 Trainer</title>
+<style>
+  :root{
+    --bg:#0f1420; --card:#1a2233; --card2:#222c42; --ink:#e8eefc; --mut:#9fb0d0;
+    --acc:#5b8def; --acc2:#38d39f; --good:#2ecc71; --bad:#ff6b6b; --warn:#f5c451;
+    --line:#2c3a56;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
+  header{padding:18px 20px 6px;max-width:1000px;margin:0 auto}
+  h1{margin:0 0 2px;font-size:22px}
+  header p{margin:0;color:var(--mut);font-size:13px}
+  nav{max-width:1000px;margin:12px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+  nav button{background:var(--card);color:var(--mut);border:1px solid var(--line);
+    border-radius:999px;padding:7px 14px;cursor:pointer;font-size:13px}
+  nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+  main{max-width:1000px;margin:0 auto;padding:16px 20px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  .drill{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:13px;cursor:pointer;transition:.15s}
+  .drill:hover{border-color:var(--acc);transform:translateY(-2px)}
+  .drill b{display:block;margin-bottom:3px}
+  .drill small{color:var(--mut)}
+  .ch{display:inline-block;font-size:11px;background:#101a2e;border:1px solid var(--line);
+    color:var(--mut);border-radius:6px;padding:1px 7px;margin-bottom:6px}
+  h2{font-size:18px;margin:6px 0 4px}
+  h3{font-size:15px;margin:16px 0 6px;color:var(--acc)}
+  code,kbd{background:#0c1220;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px}
+  .opt{display:block;width:100%;text-align:left;background:var(--card2);color:var(--ink);
+    border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin:7px 0;cursor:pointer;font-size:14px}
+  .opt:hover{border-color:var(--acc)}
+  .opt.ok{border-color:var(--good);background:#14301f}
+  .opt.no{border-color:var(--bad);background:#33161a}
+  input[type=number],input[type=text]{background:#0c1220;border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:8px 10px;font-size:15px;width:160px}
+  input[type=checkbox]{width:18px;height:18px;vertical-align:-3px;margin-right:9px}
+  button.act{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:9px 16px;font-size:14px;cursor:pointer;margin:6px 8px 0 0}
+  button.act.ghost{background:transparent;border:1px solid var(--line);color:var(--mut)}
+  button.act:disabled{opacity:.45;cursor:default}
+  .sol{border-left:3px solid var(--acc2);background:#101a2e;border-radius:0 10px 10px 0;padding:10px 14px;margin-top:12px}
+  .sol.wrong{border-color:var(--bad)}
+  .sol.good{border-color:var(--good)}
+  .flag{font-weight:700}
+  .flag.g{color:var(--good)}.flag.b{color:var(--bad)}
+  .timeline{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;white-space:pre-wrap;
+    background:#0b101c;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .fc{background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:26px 20px;min-height:160px;
+    display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;cursor:pointer;user-select:none}
+  .fc .a{color:var(--acc2);font-size:15px;text-align:left}
+  .pill{font-size:12px;color:var(--mut)}
+  svg.diagram{background:#0b101c;border:1px solid var(--line);border-radius:10px;max-width:100%}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .stat{font-size:12px;color:var(--mut)}
+  details{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0}
+  summary{cursor:pointer}
+  .kbd{font-size:12px;color:var(--mut)}
+  ul{margin:6px 0 6px 18px}
+  a{color:var(--acc)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>Networks Ch. 1–5 Trainer</h1>
+  <p>Dordal, <i>An Introduction to Computer Networks</i> — drills, walkthroughs and flashcards built around the textbook exercises.</p>
+</header>
+
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script>
+/* ============================================================
+   Tiny helpers
+   ============================================================ */
+const $ = (s,r=document)=>r.querySelector(s);
+const R = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+const shuffle = a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const fmt = (x,d=2)=>Number(x).toFixed(d);
+const esc = s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ============================================================
+   Generic graph helpers (for forwarding / spanning tree)
+   ============================================================ */
+function bfs(adj, src){
+  const n=adj.length, dist=Array(n).fill(-1);
+  dist[src]=0; const q=[src];
+  for(let i=0;i<q.length;i++){ const v=q[i];
+    for(const u of adj[v]) if(dist[u]<0){ dist[u]=dist[v]+1; q.push(u); } }
+  return dist;
+}
+// parent of v = neighbour u with dist[u]=dist[v]-1 and smallest label
+function parents(adj, labels, src){
+  const dist=bfs(adj,src), par=Array(adj.length).fill(-1);
+  for(let v=0;v<adj.length;v++){
+    if(v===src||dist[v]<0) continue;
+    let best=-1;
+    for(const u of adj[v]) if(dist[u]===dist[v]-1){
+      if(best<0 || labels[u]<labels[best]) best=u;
+    }
+    par[v]=best;
+  }
+  return {dist,par};
+}
+function svgGraph(nodes, edges, w=560, h=300){
+  let s=`<svg class="diagram" viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px">`;
+  for(const [a,b] of edges){
+    s+=`<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="#3a4a6b" stroke-width="3"/>`;
+  }
+  for(const n of nodes){
+    const r=n.r||16;
+    s+=`<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${n.fill||'#22304d'}" stroke="${n.stroke||'#5b8def'}" stroke-width="2"/>`;
+    s+=`<text x="${n.x}" y="${n.y+4}" text-anchor="middle" font-size="11" fill="#e8eefc">${esc(n.label)}</text>`;
+  }
+  return s+'</svg>';
+}
+
+/* ============================================================
+   DRILL GENERATORS
+   ============================================================ */
+const namePool  = ['S1','S2','S3','S4','S5','S6'];
+const hostPool  = ['A','B','C','D','E','F','G','H'];
+
+/* --- 1. Delay arithmetic (Ch1) --- */
+function drillDelay(){
+  const size=R(1,15)*100;                 // bytes
+  const rate=pick([10,100,1000]);         // Mbps
+  const dist=pick([500,1500,3000,5000]);  // km
+  const hops=R(0,4);                      // store-and-forward routers
+  const txMs = size*8/(rate*1e6)*1000;
+  const propMs = dist/200;                // 200 km/ms
+  const sfMs = hops*txMs;
+  const total = txMs + sfMs + propMs;
+  return { kind:'num', unit:'ms', ans:total, tol:0.05,
+    title:'Packet delay',
+    q:`A <b>${size}-byte</b> packet is sent at <b>${rate} Mbps</b> over a <b>${dist} km</b> path with
+       <b>${hops}</b> store-and-forward routers (ignore queuing). How long until the <b>last bit</b> arrives, in ms?`,
+    sol:`<b>Bandwidth (transmit) delay:</b> ${size} B × 8 / (${rate}×10⁶) = <code>${fmt(txMs,3)} ms</code> per link.<br>
+         <b>Store-and-forward:</b> ${hops} router(s) × ${fmt(txMs,3)} ms = <code>${fmt(sfMs,3)} ms</code>.<br>
+         <b>Propagation:</b> ${dist} km ÷ 200 km/ms = <code>${fmt(propMs,3)} ms</code>.<br>
+         <b>Total = ${fmt(txMs,3)} + ${fmt(sfMs,3)} + ${fmt(propMs,3)} = <code>${fmt(total,3)} ms</code>.
+         <br><span class="kbd">Queuing delay is ignored here (and is the only delay we can engineer away).</span>`
+  };
+}
+
+/* --- 2. Longest-prefix match (Ch1) --- */
+function ipToInt(str){
+  const p=str.split('.').map(Number);
+  return ((p[0]<<24)>>>0)+(p[1]<<16)+(p[2]<<8)+p[3];
+}
+function prefixMatch(ip, cidr){
+  const [a,plen]=cidr.split('/');
+  const bits=+plen;
+  const mask = bits===0 ? 0 : (bits===32 ? 0xffffffff : ((0xffffffff<<(32-bits))>>>0));
+  return ((ipToInt(ip) & mask) >>> 0) === ((ipToInt(a) & mask) >>> 0);
+}
+function drillPrefix(){
+  const nh=[{name:'R1'},{name:'R2'},{name:'R3'},{name:'R4'}];
+  const table=[
+    {net:'10.0.0.0/8',      hop:'R1'},
+    {net:'10.1.0.0/16',     hop:'R2'},
+    {net:'10.1.2.0/24',     hop:'R3'},
+    {net:'10.1.2.128/25',   hop:'R4'},
+    {net:'0.0.0.0/0',       hop:'ISP'}
+  ];
+  // random destination
+  let oct=pick([ [10,0,R(1,254),R(1,254)],
+                 [10,1,R(1,254),R(1,254)],
+                 [10,1,2,R(1,254)],
+                 [10,1,2,128+R(1,126)] ]);
+  let ip=oct.join('.');
+  const matches=table.filter(t=>prefixMatch(ip,t.net));
+  matches.sort((a,b)=>+b.net.split('/')[1]-+a.net.split('/')[1]);
+  const win=matches[0];
+  const options=shuffle([...new Set(table.map(t=>t.hop))]).map(h=>({key:h,text:h}));
+  const tbl=table.map(t=>`<tr><td><code>${t.net}</code></td><td>→ ${t.hop}</td></tr>`).join('');
+  return { kind:'mc', title:'Longest-prefix match',
+    q:`Router table:<br><code>${table.map(t=>t.net+' → '+t.hop).join('<br>')}</code><br><br>
+       Which next hop is chosen for destination <b><code>${ip}</code></b>?`,
+    options, ans:options.findIndex(o=>o.key===win.hop),
+    sol:`Matching prefixes for <code>${ip}</code> (longest wins):<br>`+
+        matches.map(m=>`• <code>${m.net}</code> → ${m.hop}`).join('<br>')+
+        `<br><b>Longest = ${win.net} → ${win.hop}.</b><br>
+         <span class="kbd">Longest prefix wins regardless of table order; a default /0 only applies if nothing else matches.</span>`
+  };
+}
+
+/* --- 3. Forwarding next-hop on the diamond (Ch1/2) --- */
+function buildDiamond(){
+  const pos=[{x:90,y:150},{x:250,y:70},{x:250,y:230},{x:410,y:150}];
+  const edgeIdx=[[0,1],[0,2],[1,3],[2,3]];
+  const swLabels=shuffle(namePool).slice(0,4);
+  const nodes=[], labels=[];
+  for(let i=0;i<4;i++){ nodes.push({x:pos[i].x,y:pos[i].y,label:swLabels[i]}); labels.push(swLabels[i]); }
+  // hosts: up to 2 per switch, placed on rings around the node
+  const ring={0:[[30,90],[30,210]],1:[[250,20],[330,20]],2:[[250,280],[330,280]],3:[[470,90],[470,210]]};
+  const adj=[[],[],[],[]];
+  for(const [a,b] of edgeIdx){ adj[a].push(b); adj[b].push(a); }
+  const hosts=[]; // {node index, label}
+  const hostNames=shuffle(hostPool);
+  let hi=0;
+  for(let i=0;i<4;i++){
+    const many=R(1,2);
+    for(let j=0;j<many && hi<hostNames.length;j++){
+      const [hx,hy]=ring[i][j];
+      const lbl=hostNames[hi++];
+      const idx=nodes.length;
+      nodes.push({x:hx,y:hy,label:lbl,r:13,fill:'#12281f',stroke:'#38d39f'});
+      labels.push(lbl);
+      adj.push([i]); adj[i].push(idx);
+      hosts.push({sw:i,label:lbl,node:idx});
+    }
+  }
+  return {nodes,edgeIdx,adj,labels,swLabels,hosts};
+}
+function drillForward(){
+  const g=buildDiamond();
+  const sw=R(0,3);
+  const destHost=pick(g.hosts);
+  const {dist}=parents(g.adj,g.labels,sw);
+  const d=dist[destHost.node];
+  let ans;
+  if(d===1 && destHost.sw===sw){ ans='direct'; }
+  else {
+    // FIRST hop from sw: a neighbour u with dist[u] === d-1, smallest label on a tie
+    let best=-1;
+    for(const u of g.adj[sw]) if(dist[u]===d-1){ if(best<0 || g.labels[u]<g.labels[best]) best=u; }
+    ans = best<0 ? 'direct' : g.labels[best];
+  }
+  // options = every neighbour of sw + 'direct'
+  const opts=[...new Set(g.adj[sw].map(i=>g.labels[i]))];
+  if(!opts.includes('direct')) opts.push('direct');
+  const options=shuffle(opts).map(o=>({key:o,text:o}));
+  let sol=`Shortest path from <b>${g.labels[sw]}</b> to <b>${destHost.label}</b> is <b>${d} hop${d===1?'':'s'}</b>.`;
+  if(ans==='direct') sol+=` <b>${destHost.label}</b> is attached to ${g.labels[sw]} → next hop is <b>local/direct</b>.`;
+  else sol+=` So the first hop is the neighbour <b>${ans}</b>.`;
+  sol+=`<br><span class="kbd">Only the FIRST step matters — the rest of the path is other switches' problem.</span>`;
+  const ties = g.adj[sw].filter(u=>dist[u]===d-1).map(u=>g.labels[u]);
+  if(ties.length>1 && ans!=='direct') sol+=`<br><span class="kbd">Tie between ${ties.join(', ')} → broke it by smallest label.</span>`;
+  return { kind:'mc', title:`Next hop from ${g.labels[sw]}`,
+    q:`<div class="row">${svgGraph(g.nodes, g.edgeIdx.map(([a,b])=>[a,b]).concat(g.hosts.map(h=>[h.sw,h.node])))}</div>
+       A packet at switch <b>${g.labels[sw]}</b> is destined for host <b>${destHost.label}</b>.
+       What is the <b>next hop</b>?`,
+    options, ans:options.findIndex(o=>o.key===String(ans)), sol };
+}
+
+/* --- 4. Sliding window throughput (Ch1) --- */
+function drillWindow(){
+  const W=R(2,20), size=pick([500,1000,1500]), rtt=pick([10,20,50,100,200]);
+  const mbps = W*size*8/(rtt*1e-3)/1e6;
+  return { kind:'num', unit:'Mbps', ans:mbps, tol:0.06, title:'Sliding-window throughput',
+    q:`A TCP connection keeps a window of <b>${W}</b> packets of <b>${size} bytes</b> in flight.
+       The round-trip time is <b>${rtt} ms</b>. What is the maximum (no-loss) throughput in <b>Mbps</b>?`,
+    sol:`One window is delivered per RTT.<br>
+         Throughput = W × size × 8 / RTT = ${W} × ${size} × 8 / ${rtt}ms = <code>${fmt(mbps,2)} Mbps</code>.<br>
+         <span class="kbd">The ideal window sends exactly one window per RTT — sliding windows hide store-and-forward and propagation delay.</span>`
+  };
+}
+
+/* --- 5. Learning switch on a line (Ch2) --- */
+function lineTopo(){
+  const swLabels=shuffle(namePool).slice(0,3);
+  const hostNames=shuffle(hostPool);
+  const hosts=[]; let hi=0;
+  const nodes=[{x:80,y:150,label:swLabels[0]},{x:280,y:150,label:swLabels[1]},{x:480,y:150,label:swLabels[2]}];
+  const rings={0:[[40,90],[40,210]],1:[[280,40],[280,260]],2:[[520,90],[520,210]]};
+  const nHost={};
+  const nodeOf={}; // label -> node index (switch)
+  const portOf={}; // switchLabel -> {nodeLabel: portName}
+  const portNeighbor={};
+  for(let i=0;i<3;i++){ portOf[swLabels[i]]={}; }
+  let portCounter=1;
+  function addPort(swIdx, otherLabel){
+    const p='p'+(portCounter++);
+    portOf[swLabels[swIdx]][otherLabel]=p;
+    portNeighbor[p]={sw:swLabels[swIdx],other:otherLabel};
+  }
+  // host counts: ensure at least 1 each, maybe 2 at an end
+  const counts=[R(1,2),R(1,2),R(1,2)];
+  const hostList=[];
+  for(let i=0;i<3;i++){
+    const c=counts[i];
+    for(let j=0;j<c && hi<hostNames.length;j++){
+      const [hx,hy]=rings[i][j];
+      const lbl=hostNames[hi++]; const idx=nodes.length;
+      nodes.push({x:hx,y:hy,label:lbl,r:13,fill:'#12281f',stroke:'#38d39f'});
+      addPort(i,lbl);
+      hostList.push({sw:i,label:lbl,node:idx});
+    }
+  }
+  // switch-switch ports
+  addPort(0, swLabels[1]);
+  addPort(1, swLabels[0]);
+  addPort(1, swLabels[2]);
+  addPort(2, swLabels[1]);
+  const switchIds=new Set(swLabels);
+  const switchOfHost={}; hostList.forEach(h=>switchOfHost[h.label]=swLabels[h.sw]);
+  const edgePairs=[[0,1],[1,2]].concat(hostList.map(h=>[h.sw,h.node]));
+  return {nodes,edgePairs,swLabels,hostList,switchOfHost,portOf,portNeighbor,switchIds,
+          edges:[[0,1],[1,2]]};
+}
+function simLearning(topo, seq){
+  const tables={}; topo.swLabels.forEach(s=>tables[s]={});
+  const seen=[];
+  for(const [src,dst] of seq){
+    const pktSeen=new Set();
+    const start=topo.switchOfHost[src];
+    const startPort=topo.portOf[start][src];
+    const queue=[[start,startPort]];
+    const visited=new Set();
+    while(queue.length){
+      const [swIn,inPort]=queue.shift();
+      if(visited.has(swIn)) continue;
+      visited.add(swIn); pktSeen.add(swIn);
+      tables[swIn][src]=inPort;                       // learn source
+      if(tables[swIn][dst]!==undefined){
+        const outPort=tables[swIn][dst];
+        const nb=Object.keys(topo.portOf[swIn]).find(k=>topo.portOf[swIn][k]===outPort);
+        if(topo.switchIds.has(nb) && outPort!==inPort){
+          const arr=topo.portOf[nb][swIn];
+          queue.push([nb,arr]);
+        }
+      } else {
+        for(const [nb,port] of Object.entries(topo.portOf[swIn])){
+          if(port===inPort) continue;
+          if(topo.switchIds.has(nb)){
+            const arr=topo.portOf[nb][swIn];
+            queue.push([nb,arr]);
+          }
+        }
+      }
+    }
+    seen.push(pktSeen);
+  }
+  return {tables,seen};
+}
+function drillLearning(){
+  const topo=lineTopo();
+  const hosts=shuffle(topo.hostList.map(h=>h.label));
+  const a=pick(hosts);
+  const b=pick(hosts.filter(x=>x!==a));
+  const seq=[[a,b],[b,a]];
+  let c=null;
+  if(hosts.length>2 && Math.random()<0.65){
+    c=pick(hosts.filter(x=>x!==a&&x!==b));
+    seq.push([c,b]);
+  }
+  const k=seq.length-1;
+  const [src,dst]=seq[k];
+  const {tables,seen}=simLearning(topo,seq);
+  const allSw=topo.swLabels;
+  const options=shuffle(allSw).map(s=>({key:s,text:s}));
+  const correct=new Set([...seen[k]]);
+  const lines=allSw.map(s=>{
+    const t=tables[s]; const keys=Object.keys(t);
+    return `<b>${s}</b>: ${keys.length?keys.map(kk=>`${kk}→${t[kk]}`).join(', '):'(empty)'}`;
+  }).join('<br>');
+  const seqTxt=seq.map((p,i)=>`${i+1}. ${p[0]} → ${p[1]}${i===k?'  ← asked about this one':''}`).join('<br>');
+  return { kind:'multi', title:`Learning switch: ${src} → ${dst}`,
+    q:`<div class="row">${svgGraph(topo.nodes, topo.edgePairs, 560, 300)}</div>
+       Every forwarding table starts <b>empty</b>. These transmissions happen in order (no other traffic):<br>
+       <b>${seqTxt}</b><br><br>
+       Which switches <b>see</b> the last packet, <b>${src} → ${dst}</b>?`,
+    options, ans:options.map((o,i)=>correct.has(o.key)?i:null).filter(x=>x!==null),
+    sol:`A switch <b>floods</b> when it doesn't know the destination, and <b>learns the source</b> from the port it arrived on.<br>
+         Switches that saw <b>${src} → ${dst}</b>: <b>${[...correct].join(', ')}</b>.<br>
+         Tables after all transmissions:<br>${lines}<br>
+         <span class="kbd">Once a switch knows the destination it forwards precisely and stops the flood — that's why earlier
+         transmissions change who sees the later ones.</span>`
+  };
+}
+
+/* --- 6. Exponential backoff (Ch2) --- */
+function simulateBackoff(n){
+  const st=[]; for(let i=1;i<=n;i++) st.push({name:'S'+i,attempts:0,time:0});
+  const log=[]; let t=0;
+  for(let step=0; step<300; step++){
+    const active=st.filter(s=>s.time===t);
+    if(active.length===0){ t++; continue; }
+    if(active.length===1){
+      log.push({t,type:'win',who:active[0].name});
+      return log;
+    }
+    log.push({t,type:'collide',who:active.map(s=>s.name)});
+    active.forEach(s=>{
+      s.attempts++;
+      const max=Math.pow(2,Math.min(s.attempts,10));
+      const k=R(0,max-1);
+      log.push({t,type:'bo',who:s.name,attempt:s.attempts,k,next:t+1+k});
+      s.time=t+1+k;
+    });
+    t++;
+  }
+  return log;
+}
+function timelineHtml(log){
+  let out='';
+  for(const e of log){
+    if(e.type==='collide') out+=`<span style="color:#ff6b6b">t=${e.t}: ${e.who.join(', ')} transmit → COLLISION</span>\n`;
+    else if(e.type==='bo') out+=`   ${e.who}: attempt #${e.attempt}, k=${e.k} → retry at t=${e.next}\n`;
+    else out+=`<span style="color:#38d39f">t=${e.t}: only ${e.who} transmits → SUCCESS</span>\n`;
+  }
+  return out;
+}
+function drillBackoff(){
+  const n=R(3,5);
+  const log=simulateBackoff(n);
+  return { kind:'reveal', title:'Exponential backoff',
+    q:`<b>${n}</b> stations (S1…S${n}) all have a packet ready and all start transmitting at <b>t=0</b>.
+       They detect the collision one slot later and use Ethernet's exponential backoff.
+       Simulate the contention period until one station wins.`,
+    sol:`<div class="timeline">${timelineHtml(log)}</div>
+      <b>Reminder of the rule:</b> after attempt N (1≤N≤10), pick a random <code>k&lt;2ᴺ</code>;
+      wait k slot times; give up after N=16.<br>
+      <span class="kbd">Ethernet is 1-persistent, so several stations waiting for a quiet line always cause an
+      initial collision — backoff then sorts out who wins.</span>`
+  };
+}
+
+/* --- 7. Spanning tree (Ch3) --- */
+function drillSpanning(){
+  // diamond + an extra edge S1-S4 to create cycles
+  const g=buildDiamond();
+  const extra=[0,3];
+  const adj=g.adj.map(a=>a.slice());
+  adj[0].push(3); adj[3].push(0);
+  const root=g.swLabels.indexOf([...g.swLabels].sort()[0]);
+  const {dist,par}=parents(adj,g.labels,root);
+  const enabled=new Set();
+  for(let v=0;v<4;v++) if(v!==root && par[v]>=0){ enabled.add([Math.min(v,par[v]),Math.max(v,par[v])].join('-')); }
+  const allEdges=[[0,1],[0,2],[1,3],[2,3],[0,3]];
+  const pruned=allEdges.filter(([a,b])=>!enabled.has([Math.min(a,b),Math.max(a,b)].join('-')));
+  const options=allEdges.map(([a,b])=>({key:a+'-'+b,text:g.swLabels[a]+' — '+g.swLabels[b]}));
+  const correct=pruned.map(([a,b])=>options.findIndex(o=>o.key===Math.min(a,b)+'-'+Math.max(a,b)));
+  const enabledList=enabled.size?[...enabled].map(e=>{const [a,b]=e.split('-').map(Number);return g.swLabels[a]+'—'+g.swLabels[b];}).join(', '):'(none)';
+  return { kind:'multi', title:'Spanning-tree pruning',
+    q:`<div class="row">${svgGraph(g.nodes, allEdges.concat(g.hosts.map(h=>[h.sw,h.node])))}</div>
+       Fully switched network (no hubs). Switch IDs are the numbers in the names (e.g. <code>S3</code> = ID 3),
+       so <b>${g.swLabels[root]}</b> is the root. Which links get <b>pruned</b> by the spanning-tree algorithm?
+       <span class="kbd">(each station's link to the root plus links others use toward the root stays enabled)</span>`,
+    options, ans:correct,
+    sol:`Root = smallest ID = <b>${g.swLabels[root]}</b>. BFS from the root; each node's parent is the shortest-cost
+         neighbour, ties broken by smallest ID.<br>
+         <b>Kept:</b> ${enabledList}<br>
+         <b>Pruned:</b> ${pruned.map(([a,b])=>g.swLabels[a]+'—'+g.swLabels[b]).join(', ')}<br>
+         <span class="kbd">Disabled links sit idle even if shorter; all traffic ends up going toward/through the root.</span>`
+  };
+}
+
+/* --- 8. Wi-Fi contention interval (Ch4) --- */
+function drillContention(){
+  const slots=pick([16,32,64,128]);
+  const size=pick([512,1024,1500]);
+  const rate=pick([11,54]);
+  const slotUs=20;
+  const contUs=slots*slotUs;
+  const txUs=size*8/rate*1; // bytes*8/rate(Mbps) = us since Mbps=bits/us
+  const loss=contUs/(contUs+txUs)*100;
+  return { kind:'num', unit:'µs', ans:contUs, tol:0.02, title:'Wi-Fi contention cost',
+    q:`A Wi-Fi (802.11g) sender's average contention interval is <b>${slots} slot times</b>
+       (slot time = ${slotUs} µs). How long is the contention interval, in <b>µs</b>?`,
+    sol:`${slots} slots × ${slotUs} µs/slot = <code>${contUs} µs</code>.<br>
+         <span class="kbd">Useful check: a ${size} B packet at ${rate} Mbps takes ${fmt(txUs,1)} µs,
+         so contention wastes about ${fmt(loss,1)}% of the time.</span>`
+  };
+}
+
+/* --- 9. Ranging / guard interval (Ch4) --- */
+function drillRanging(){
+  const v=pick([10,20,33]);
+  const T=pick([10,30,60]);
+  const c=300; // m/us
+  const moved=v*T;            // metres per update interval
+  const errUs=moved/c;        // timing error one-way
+  const guard=2*errUs;        // double (early or late)
+  return { kind:'num', unit:'µs', ans:guard, tol:0.03, title:'Ranging / guard interval',
+    q:`A wireless subscriber moves at <b>${v} m/s</b>. It updates its ranging measurement once every
+       <b>${T} s</b>. How much <b>guard time</b> (µs) must be allowed per transmitted packet so that
+       early/late arrivals never overlap? (Speed of light = 300 m/µs; double the one-way error.)`,
+    sol:`Distance travelled per update = ${v} × ${T} = <b>${moved} m</b>.<br>
+         One-way timing error = ${moved} / 300 = <code>${fmt(errUs,2)} µs</code>.<br>
+         Guard time = 2 × that = <code>${fmt(guard,2)} µs</code> (the base station can't tell early from late).<br>
+         <span class="kbd">WiMAX/LTE schedule uplink slots precisely so transmissions arrive back-to-back — that's why ranging matters.</span>`
+  };
+}
+
+/* --- 10. Hidden node (Ch4) --- */
+function drillHidden(){
+  const scenario=pick(['line','wall']);
+  const options=shuffle([
+    {key:'C',text:'At C (the middle node) only'},
+    {key:'A',text:'At A and B'},
+    {key:'none',text:'Nowhere — no collision'},
+    {key:'all',text:'At A, B and C'}
+  ]);
+  const ansKey='C';
+  return { kind:'mc', title:'Hidden-node problem',
+    q:`Nodes A and B are each within range of C, but A and B are <b>out of range of each other</b>
+       (${scenario==='wall'?'a radio-opaque wall between them':'too far apart'}).
+       A and B transmit <b>at the same time</b>. Where does a collision occur?`,
+    options, ans:options.findIndex(o=>o.key===ansKey),
+    sol:`C receives both signals and they interfere → <b>collision at C</b>.<br>
+         Neither A nor B can detect it (they can't hear each other), so neither knows to back off.
+         That is exactly what the <b>hidden-node problem</b> is, and why Wi-Fi adds link-layer ACKs and optionally RTS/CTS.
+         <span class="kbd">A collision is local — it happens at the receiver, not in the whole network.</span>`
+  };
+}
+
+/* --- 11. Token ring wait (Ch5) --- */
+function drillToken(){
+  const rate=pick([4,10,16]);
+  const tk=pick([32,64,128]);
+  const N=pick([10,20,40,100]);
+  const avgPass=N/2;
+  const waitMs=avgPass*(tk*8/(rate*1e6))*1000;
+  return { kind:'num', unit:'ms', ans:waitMs, tol:0.05, title:'Token Ring average wait',
+    q:`A ${rate} Mbps Token Ring has <b>${N}</b> equally-active stations and a <b>${tk}-byte</b> token.
+       On average, how long (in <b>ms</b>) does a station wait to receive the token? Ignore propagation
+       delay and the inter-packet gap.`,
+    sol:`Average number of stations the token must pass = N/2 = ${avgPass}.<br>
+         Time to pass one token = ${tk} B × 8 / (${rate}×10⁶) = <code>${fmt(tk*8/(rate*1e6)*1000,4)} ms</code>.<br>
+         Wait = ${avgPass} × that = <code>${fmt(waitMs,3)} ms</code>.<br>
+         <span class="kbd">Token Ring is collision-free and perfectly fair: N busy stations each get 1/N of the turns.</span>`
+  };
+}
+
+/* --- 12. ATM cells (Ch5) --- */
+function drillATM(){
+  const P=pick([40,100,512,1500,4096]);
+  const mode=pick(['AAL5','AAL3/4']);
+  let cells, usefulPer;
+  if(mode==='AAL5'){ cells=Math.ceil(P/48); usefulPer=48; }
+  else { cells=Math.ceil((P+8)/44); usefulPer=44; }
+  const overhead=1 - P/(cells*53);
+  const q = Math.random()<0.5
+    ? {ask:'cells', ans:cells, unit:'cells'}
+    : {ask:'eff', ans:overhead*100, unit:'%', tol:0.5};
+  const howM = mode==='AAL5'
+    ? 'AAL5 chops the CS-PDU into <b>48-byte</b> chunks (5 B ATM header per cell).'
+    : 'AAL3/4 wraps the CS-PDU (adds 8 B) and chops it into <b>44-byte</b> chunks — each cell then carries 4 B of AAL header/trailer plus the 5 B ATM header (9 B overhead per cell).';
+  return { kind:'num', title:`ATM ${mode} packing`, unit:q.unit, ans:q.ans, tol:(q.ask==='cells'?0:0.5),
+    q:`An IP packet of <b>${P} bytes</b> is carried over ATM using <b>${mode}</b>. ${howM}<br>
+       ${q.ask==='cells' ? 'How many cells are needed?' : 'What percentage of the transmitted bytes is payload (round to ~0.1%)?'}`,
+    sol:`Cells = ${mode==='AAL5'?`⌈${P}/48⌉`:`⌈(${P}+8)/44⌉`} = <code>${cells}</code>.
+         Total transmitted = ${cells} × 53 = ${cells*53} B.<br>
+         Payload fraction = ${P}/${cells*53} = <code>${fmt(overhead*100,1)}% payload</code> (overhead ${fmt(100-overhead*100,1)}%).<br>
+         <span class="kbd">AAL5's 10% overhead beat AAL3/4's ~20% — and one CRC-32 over the whole message beats several short CRC-10s.</span>`
+  };
+}
+
+/* --- 13. VCI table lookup (Ch5) --- */
+function drillVCI(){
+  // fixed network: A-S1-S2-S4-S5-F   (neighbours identified by name)
+  const path=['A','S1','S2','S4','S5','F'];
+  const vci=[]; for(let i=0;i<path.length-1;i++) vci.push(R(1,9));
+  // build table for S2 and S4
+  const tables={};
+  for(let i=1;i<path.length-1;i++){
+    const sw=path[i], prev=path[i-1], next=path[i+1];
+    tables[sw]={inV: vci[i-1], inPort: prev, outV: vci[i], outPort: next};
+  }
+  const ask=pick(['S2','S4']);
+  const t=tables[ask];
+  const ansPort=t.outPort, ansV=t.outV;
+  const options=shuffle([...new Set([t.outPort,'S1','S2','S3','S4','S5'].filter(x=>x!==ask))]).slice(0,4).map(o=>({key:o,text:o}));
+  if(!options.find(o=>o.key===ansPort)){ options[0]={key:ansPort,text:ansPort}; }
+  return { kind:'mc', title:'Virtual-circuit table',
+    q:`A connection runs <code>A → S1 → S2 → S4 → S5 → F</code>.
+       On each link it has been assigned a VCI. At <b>${ask}</b>, a packet arrives from <b>${t.inPort}</b>
+       carrying <b>VCI = ${t.inV}</b>. Which neighbour does ${ask} send it to next?`,
+    options, ans:options.findIndex(o=>o.key===ansPort),
+    sol:`${ask}'s connection-table row is:
+         <code>⟨VCI_in=${t.inV}, port_in=${t.inPort}⟩ → ⟨VCI_out=${t.outV}, port_out=${t.outPort}⟩</code>.<br>
+         So it forwards to <b>${t.outPort}</b> and <b>rewrites the VCI to ${t.outV}</b>.<br>
+         <span class="kbd">VCIs are only guaranteed unique per link, and every switch rewrites them — that's what makes
+         datagram (destination-addressed) forwarding different from VC forwarding.</span>`
+  };
+}
+
+const DRILLS = [
+  {id:'delay',    ch:'Ch 1', name:'Packet delay arithmetic', fn:drillDelay},
+  {id:'prefix',   ch:'Ch 1', name:'Longest-prefix IP lookup',fn:drillPrefix},
+  {id:'forward',  ch:'Ch 1–2',name:'Forwarding next hop',     fn:drillForward},
+  {id:'window',   ch:'Ch 1', name:'Sliding-window throughput',fn:drillWindow},
+  {id:'learning', ch:'Ch 2', name:'Learning-switch trace',   fn:drillLearning},
+  {id:'backoff',  ch:'Ch 2', name:'Exponential backoff sim', fn:drillBackoff},
+  {id:'spanning', ch:'Ch 3', name:'Spanning-tree pruning',   fn:drillSpanning},
+  {id:'contention',ch:'Ch 4',name:'Wi-Fi contention cost',   fn:drillContention},
+  {id:'ranging',  ch:'Ch 4', name:'Ranging / guard time',    fn:drillRanging},
+  {id:'hidden',   ch:'Ch 4', name:'Hidden-node problem',     fn:drillHidden},
+  {id:'token',    ch:'Ch 5', name:'Token Ring average wait', fn:drillToken},
+  {id:'atm',      ch:'Ch 5', name:'ATM cell packing',        fn:drillATM},
+  {id:'vci',      ch:'Ch 5', name:'Virtual-circuit table',   fn:drillVCI},
+];
+
+/* ============================================================
+   WORKED EXAMPLES (step-throughs)
+   ============================================================ */
+const EXAMPLES = [
+{id:'wf', ch:'Ch 1', title:'Build a forwarding table (diamond)',
+ steps:[
+  `<b>Setup.</b> Look at the diamond: S1 connects to S2 and S3; S2 and S3 both connect to S4. Hosts hang off the switches.
+   A forwarding table maps <i>destination → next hop</i>. Each switch only stores <b>one</b> step.`,
+  `<b>Rule of thumb.</b> A switch's next hop for a destination is <b>the neighbour on a shortest path</b> to it.`,
+  `<b>Directly-attached destinations.</b> If the destination is a host on this switch, the next hop is <i>local / direct</i>.`,
+  `<b>Everything else.</b> Run a shortest-path search (BFS). Ties are common — e.g. S4→S1 can go via S2 or S3.
+   The textbook's convention: keep paths short, and when there is a genuine tie note that either is acceptable.`,
+  `<b>Example row.</b> On S1, the next hop for a host attached to S4 is S2 (or S3) — never S4 directly, because
+   S1 is not directly connected to S4.`,
+  `<b>Default entries.</b> A catch-all <code>default</code> row (0.0.0.0/0) points non-local traffic toward the Internet.
+   It only makes sense where you can tell an address is not local — common in IP, rare in Ethernet.`,
+  `<b>Why this scales for IP, not Ethernet.</b> IP tables list <i>network prefixes</i> (whole LANs) — ~800 000 entries cover the Internet.
+   Ethernet tables must list every <i>host</i> — around 10 000–100 000 max.`
+ ]},
+{id:'wl', ch:'Ch 2', title:'Trace a learning switch',
+ steps:[
+  `<b>Setup.</b> Switches start with <b>empty</b> tables. They learn by watching the <b>source</b> address of every packet.`,
+  `<b>Step 1 (A→B).</b> Switch of A receives it and records <code>A → (port A came in on)</code>.
+   It doesn't know B, so it <b>floods</b>: sends the packet out every other port.`,
+  `<b>Step 2.</b> Every switch the flooded packet reaches also records <code>A → (port it arrived from)</code>.
+   That is the key insight: <i>the source is learned even by switches that only see the flood</i>.`,
+  `<b>Step 3 (B replies).</b> Now the switches along B's path learn <code>B → port</code>.`,
+  `<b>Step 4.</b> Once both endpoints have sent, later packets are <b>forwarded</b>, not flooded.`,
+  `<b>What "sees the packet" means.</b> Picture the flood spreading out from the source switch like ripples,
+   stopping where a switch already knows the destination (it forwards precisely instead of flooding on).`,
+  `<b>Security angle.</b> Flooding is how unknown destinations get delivered, but it also exposes traffic.
+   A <b>MAC-flooding</b> attack fills the tables with fake addresses so everything floods again — <b>port security</b> blocks it.`
+ ]},
+{id:'wb', ch:'Ch 2', title:'Exponential backoff, step by step',
+ steps:[
+  `<b>Setup.</b> Several stations all have data and all start transmitting at <b>t=0</b>. Wired Ethernet is
+   <b>1-persistent</b>, so they all transmit the moment the line goes quiet → a guaranteed collision.`,
+  `<b>Detect.</b> A collision takes a moment to be noticed; model it as "one slot later".`,
+  `<b>Choose k.</b> After attempt number N, pick a random integer <code>k</code> with <code>0 ≤ k &lt; 2ᴺ</code>,
+   then wait <code>k</code> slot times. (First attempt after a collision: N=1, so k is 0 or 1.)`,
+  `<b>Resume.</b> Each station retries at its chosen time. Stations that pick k=0 retry immediately — and may collide again.`,
+  `<b>Repeat.</b> Every collision doubles the range, so the chance two stations pick the same k keeps halving.`,
+  `<b>Cap.</b> For N=11…15 the range stays at 1024; at N=16 the station <b>gives up and drops the packet</b>.`,
+  `<b>Why fair-ish, not fair.</b> A station that has failed more times picks from a wider range (worse odds).
+   That produces the <b>capture effect</b>, where one busy station can keep winning backoffs.`,
+  `<b>Unslotted vs slotted.</b> Original ALOHA (no listening) peaks at <code>S = 1/(2e) ≈ 18%</code>; classic Ethernet
+   (with carrier sense) reaches roughly <code>P/(2e−1+P)</code> of the line — ~64% for 512-byte packets.`
+ ]},
+{id:'ws', ch:'Ch 3', title:'Prune a spanning tree',
+ steps:[
+  `<b>Goal.</b> Loops in an Ethernet would circulate broadcast packets forever, but redundant links are valuable backup.
+   Spanning Tree keeps a loop-free <b>tree</b> of links and disables the rest.`,
+  `<b>Step 1 — elect a root.</b> The switch with the <b>smallest ID</b> (often its smallest MAC address) becomes the root.
+   Root = <i>root of the tree</i>.`,
+  `<b>Step 2 — everyone finds its path to the root.</b> Switches send <b>BPDUs</b> ("Hello") carrying their ID,
+   who they think the root is, and their cost to it. Cost is usually hop count, later scaled by bandwidth.`,
+  `<b>Step 3 — tie-breakers.</b> If two paths to the root have equal cost, use the one through the neighbour with the
+   smaller ID. If two ports reach that same neighbour, use the smaller port number.`,
+  `<b>Step 4 — enable ports.</b> Keep (a) the port toward your root path, (b) ports other switches use to reach the root,
+   (c) for any shared segment, only the closest-to-root switch's port, and (d) ports to plain hosts.`,
+  `<b>Result.</b> Redundant links are off (idle), even if they'd be shorter. All traffic flows toward/through the root.`,
+  `<b>Cost.</b> Traditional 802.1D takes ~30 s to converge after boot. And a rogue switch can claim ID 0 to become root —
+   Cisco's <b>Root Guard</b> prevents that.`
+ ]},
+{id:'wp', ch:'Ch 1', title:'Longest-prefix match',
+ steps:[
+  `<b>Setup.</b> An IP router's table lists <i>network prefixes</i>, like <code>10.0.0.0/8</code> and <code>10.1.2.0/24</code>.`,
+  `<b>Match.</b> Find every prefix whose network bits equal the destination's leading bits.`,
+  `<b>Longest wins.</b> Of the matches, take the one with the <b>most bits</b> (most specific).`,
+  `<b>Default.</b> The <code>0.0.0.0/0</code> entry matches everything but is only used if nothing else matches.`,
+  `<b>Why.</b> Prefixes are why routers need ~800 000 entries instead of one per host. In hardware this is done with
+   <b>TCAM</b>, where shorter prefixes must be listed before longer ones so ties resolve to the longest match.`
+ ]},
+{id:'wf2', ch:'Ch 4', title:'Why Wi-Fi is not Ethernet',
+ steps:[
+  `<b>Wired Ethernet (CSMA/CD):</b> listen, talk, and <i>listen while talking</i> to catch collisions. Easy, because
+   your own signal is ~100× stronger than a neighbour's.`,
+  `<b>Radio:</b> a distant sender's signal can be ~10⁻⁶ of yours (−60 dB) — completely drowned out while you transmit.
+   So <b>you cannot detect collisions</b>.`,
+  `<b>Fix 1 — ACKs.</b> After each unicast frame the receiver, one <b>SIFS</b> (10 µs) later, sends a short ACK.
+   No ACK → assume a collision and retransmit. ACKs carry no sequence number; they acknowledge the packet just heard.`,
+  `<b>Fix 2 — CSMA/CA.</b> Instead of detecting collisions, <i>avoid</i> them. Even the first transmission waits a random
+   number of slots (initially <code>k&lt;32</code>), doubling on each failure up to 1024.`,
+  `<b>Timings.</b> slot 20 µs; DIFS (normal spacing) 50 µs; SIFS (short spacing, used for ACKs and RTS/CTS) 10 µs.
+   Longer waits for data, shorter for ACKs, keeps ACKs from colliding.`,
+  `<b>Hidden nodes.</b> Two stations that can't hear each other can still collide at a third. <b>RTS/CTS</b> fixes it:
+   the receiver's CTS tells everyone nearby (including the hidden station) how long to stay quiet.`,
+  `<b>Rate scaling.</b> When errors rise, drop the bit rate (54 → 48 → … → 6 Mbps) to reduce noise errors.
+   Every frame's preamble and every ACK is sent at the minimum rate so everyone can hear it.`
+ ]},
+{id:'wv', ch:'Ch 5', title:'Virtual-circuit tables',
+ steps:[
+  `<b>Idea.</b> Instead of a destination address, a virtual circuit uses a small <b>connection ID (VCI)</b> that is
+   only meaningful on each individual link.`,
+  `<b>Setup first.</b> A connection must be established before any data flows: a path is chosen and each link gets a VCI.`,
+  `<b>Switch table.</b> Each switch stores rows of <code>⟨VCI_in, port_in⟩ → ⟨VCI_out, port_out⟩</code>.`,
+  `<b>Forwarding.</b> A packet arrives on a port with some VCI; look up that pair, <b>rewrite</b> the VCI to the outgoing value,
+   and send it on the outgoing port.`,
+  `<b>Compare with datagram forwarding.</b> Datagram routers look up the <i>destination</i> and never rewrite addresses
+   (only TTL). VC switches look up <i>connection + arrival port</i> and always rewrite the VCI.`,
+  `<b>Why VCIs are local.</b> Because they're rewritten at every hop, they only need to be unique per link — a tiny,
+   compact namespace (good for fast lookup and small headers).`,
+  `<b>Trade-off.</b> VCs can <i>guarantee</i> quality (reserved bandwidth, small delay) but routers hold per-connection state,
+   failures are messier, and per-connection billing is hard. IP chose the stateless road; MPLS and RSVP are partial returns.`
+ ]},
+{id:'wa', ch:'Ch 5', title:'ATM: AAL5 vs AAL3/4',
+ steps:[
+  `<b>Why small cells?</b> Voice accumulates only 8 bytes/ms. Big packets mean big "fill time" delays and a big packet
+   blocks the line for a long time. ATM chose fixed <b>53-byte cells = 48 data + 5 header</b>.`,
+  `<b>Chopping up an IP packet</b> is called segmentation (at entry) and reassembly (at exit). It's done by an
+   <b>ATM Adaptation Layer</b> (AAL).`,
+  `<b>AAL3/4:</b> wrap the packet (add 8 bytes of CS-PDU wrapper), then chop into <b>44-byte</b> chunks. Each cell adds
+   4 bytes of AAL3/4 header/trailer (type, sequence number, MID, CRC-10) on top of the 5-byte ATM header.`,
+  `<b>AAL3/4 overhead:</b> 9 bytes of header for 44 bytes of data = <b>&gt;20%</b>. The IP-over-ATM folks hated that.`,
+  `<b>AAL5:</b> chop straight into <b>48-byte</b> chunks; put a single <b>CRC-32</b> on the whole CS-PDU; drop the
+   useless MID. Overhead = 5 bytes for 48 = <b>10%</b>.`,
+  `<b>Surprise:</b> AAL5 is <i>more</i> reliable despite fewer checksum bits, because errors are rare and usually hit one cell.
+   A single CRC-10 catches a one-cell error with only 1−2⁻¹⁰ certainty; CRC-32 gives 1−2⁻³². AAL3/4 only wins with errors in 4+ cells.`,
+  `<b>Moral:</b> one checksum over the whole message beats many short ones over parts.`,
+  `<b>Catch:</b> AAL5 detects lost cells only via the final CRC, and reassembly needs ATM's "no cell reordering" guarantee.`
+ ]},
+{id:'ww', ch:'Ch 4', title:'WPA2 four-way handshake',
+ steps:[
+  `<b>Goal.</b> The station must prove it knows the password, the access point must prove <i>it</i> is genuine,
+   and the two must derive a fresh per-session key.`,
+  `<b>Ingredients.</b> Both sides share a master key: the <b>PSK</b> (WPA2-Personal) or a negotiated <b>PMK</b>
+   (WPA2-Enterprise). Each side also picks a random <b>nonce</b> (AP's = ANonce, station's = SNonce).`,
+  `<b>Message 1 (AP → station):</b> AP sends its <b>ANonce</b>, in the clear, plus a replay counter.`,
+  `<b>Station computes the session key.</b> <code>PTK = hash(master key, ANonce, SNonce, both MAC addresses)</code>.`,
+  `<b>Message 2 (station → AP):</b> station sends its <b>SNonce</b> plus a signature (<b>MIC</b>, a.k.a. Michael).
+   The AP can now compute the same PTK and verify the MIC — proving the station knew the master key.`,
+  `<b>Message 3 (AP → station):</b> AP sends its own signed message (incremented replay counter), optionally including
+   the <b>GTK</b> for broadcast traffic. Verifying it proves the AP to the station.`,
+  `<b>Message 4 (station → AP):</b> a simple acknowledgment.`,
+  `<b>Weakness.</b> Because the handshake is public, an eavesdropper can record it and <b>brute-force the password offline</b>.
+   <b>KRACK</b> replayed message 3 to force key reinstallation (reusing the keystream) — fixed by ignoring replays.
+   <b>WPA3</b> replaces the handshake with <b>SAE</b>, which defeats offline guessing and adds forward secrecy.`
+ ]},
+{id:'wvn', ch:'Ch 5', title:'Walk a VPN packet',
+ steps:[
+  `<b>Goal.</b> Reach an internal corporate address from home without a leased line.`,
+  `<b>Step 1.</b> Your machine opens an ordinary TCP or UDP connection (or IPsec) to the workplace <b>VPN server</b>, over the public Internet.`,
+  `<b>Step 2.</b> A software <b>virtual interface</b> (e.g. <code>tun0</code>) is created and given an <i>internal</i> workplace IP address.`,
+  `<b>Step 3.</b> Your forwarding table routes workplace traffic out <code>tun0</code>.`,
+  `<b>Step 4 — tunneling.</b> A packet handed to <code>tun0</code> is <b>encapsulated</b> in an outer packet and sent over the
+   real connection (<code>eth0</code>) to the VPN server, which unwraps and delivers it internally.`,
+  `<b>Step 5 — reply.</b> Return traffic is encapsulated back to you the same way.`,
+  `<b>Practical bit.</b> Keep a <b>host-specific route</b> for the VPN server's own address so tunnel packets go via
+   <code>eth0</code> — otherwise the tunnel would try to route through itself.`,
+  `<b>Gotcha.</b> Inner and outer packets are different; if congestion marks (ECN) on the outer packet aren't copied
+   to the inner one, congestion response is lost (RFC 6040 fixes this).`
+ ]}
+];
+
+/* ============================================================
+   FLASHCARDS
+   ============================================================ */
+const CARDS = [
+ ['Ch 1','The 4-layer network model','Application, Transport (TCP/UDP), Internetwork (IP), Link (LAN). Adding a "physical" layer gives the 5-layer model.'],
+ ['Ch 1','What is encapsulation?','Each layer adds its own header to the data from the layer above (letter → envelope → shipping box → truck).'],
+ ['Ch 1','Data rate vs throughput vs goodput','Data rate = bits/sec on a link; throughput = effective rate incl. overhead; goodput = useful app-layer data (retransmits counted once).'],
+ ['Ch 1','kb vs kB','In rates, k=1000 (kbps = 10³ bits). In file sizes, K=1024 (kB = 2¹⁰ bytes).'],
+ ['Ch 1','Datagram forwarding','Each packet carries a destination address; switches keep ⟨destination, next_hop⟩ tables; routers hold no connection state ("stateless", "in isolation").'],
+ ['Ch 1','Switch vs router','Switch forwards by LAN/MAC address; router forwards by IP address.'],
+ ['Ch 1','Default (catch-all) entry','A single forwarding entry for everything that doesn\'t match, e.g. 0.0.0.0/0.'],
+ ['Ch 1','TTL','1-byte IP header field, set by the sender, decremented by each router, packet dropped at 0. Usually starts at 64 — the anti-routing-loop failsafe.'],
+ ['Ch 1','What causes most Internet packet loss?','Congestion (full router queues), not corruption.'],
+ ['Ch 1','Knee vs cliff','Knee = queue just starting to build (contention); cliff = queue full, packets dropped, throughput collapses.'],
+ ['Ch 1','Four components of packet delay','Bandwidth delay, propagation delay, store-and-forward delay, queuing delay. Queuing is the only one engineering can reduce.'],
+ ['Ch 1','Propagation delay rule of thumb','~200 m per µs (about ⅔ the speed of light in vacuum).'],
+ ['Ch 1','MAC address','48-bit LAN address burned into the card; first 3 bytes = OUI (manufacturer). It says nothing about location.'],
+ ['Ch 1','IP address & prefix','32-bit (IPv4) administrative address split into network prefix + host part; the split is what makes routing scale.'],
+ ['Ch 1','CIDR','Classless Inter-Domain Routing — a network specified as address/length, e.g. 200.1.130.96/27.'],
+ ['Ch 1','Legacy IP classes A/B/C','A = /8 (first bit 0), B = /16 (first bits 10), C = /24 (first bits 110). Class D (1110) = multicast.'],
+ ['Ch 1','TCP features','Reliability (seq #, ACKs, retransmit), connection-oriented, stream-oriented, port numbers, throughput management, sliding windows.'],
+ ['Ch 1','UDP features','Ports + checksum only. No connection setup, no loss detection, no retransmit — good for real-time (with RTP on top).'],
+ ['Ch 1','Socket','A ⟨host, port⟩ pair. A TCP connection is identified by the socket address at each end.'],
+ ['Ch 1','Ideal sliding-window size','Enough to send a full window in one RTT.'],
+ ['Ch 1','TCP Reno sawtooth','Grow the window until a loss, then halve it, then grow again — that is TCP\'s congestion control.'],
+ ['Ch 1','Head-of-line blocking','A lost packet makes TCP hold back everything behind it — bad for real-time, which is why UDP is used there.'],
+ ['Ch 1','DNS','Hierarchical, distributed system mapping names to IP addresses; results are cached.'],
+ ['Ch 1','NAT','Network Address Translation — lets many hosts share one public IP; also gives home-router firewall protection.'],
+ ['Ch 1','Postel\'s robustness principle','"Be conservative in what you send, liberal in what you accept."'],
+ ['Ch 1','OSI vs IETF models','OSI = 7 layers (adds Session + Presentation). IETF = 5 layers. IETF wins in practice ("rough consensus and running code").'],
+ ['Ch 2','CSMA/CD','Carrier Sense, Multiple Access, Collision Detect — the classic wired-Ethernet access rule.'],
+ ['Ch 2','Slot time','512 bits = 64 bytes = 51.2 µs at 10 Mbps. It guarantees a sender can detect a collision while still transmitting.'],
+ ['Ch 2','Minimum Ethernet packet','64 bytes total (46 bytes of data); shorter payloads are padded.'],
+ ['Ch 2','Exponential backoff','After attempt N (1≤N≤10) pick random k with 0≤k<2ᴺ and wait k slots; N=11–15 use k<1024; give up at N=16.'],
+ ['Ch 2','Hub vs switch','A hub repeats signals to all ports (propagates collisions); a switch buffers whole packets and forwards only where needed (isolates collision domains).'],
+ ['Ch 2','Switch learning algorithm','Record ⟨source, arrival port⟩ for every packet; forward known destinations precisely; flood unknown ones out all other ports; drop if dest = arrival port.'],
+ ['Ch 2','Flooding','Forwarding to every port except the arrival port — the fallback for an unknown destination; also how switches learn without any protocol.'],
+ ['Ch 2','MAC flooding attack & port security','Attacker sends many fake source addresses to overflow switch tables and force flooding (to eavesdrop). Port security limits entries per port.'],
+ ['Ch 2','Full-duplex Ethernet','Separate wire per direction → collisions are impossible; used on all modern point-to-point links.'],
+ ['Ch 2','Capture effect','Backoff is unfair: a station that keeps winning gets better odds each round, so a busy transmitter can starve another.'],
+ ['Ch 3','Spanning Tree Algorithm','Switches elect a root (smallest ID), exchange BPDUs, and disable enough links to leave a loop-free tree with a path to everyone.'],
+ ['Ch 3','BPDU','"Hello" message switches exchange for spanning tree: switch ID, believed root, cost to root. Sent to 01:80:c2:00:00:00.'],
+ ['Ch 3','VLAN','Logically separates groups on shared switches; switch-to-switch frames carry an 802.1Q tag (12-bit VLAN ID) so the far switch knows the colour.'],
+ ['Ch 3','TRILL / SPB','Make all Ethernet links active and route shortest paths (TRILL uses RBridges + IS-IS). Recovery <0.1 s vs ~30 s for spanning tree.'],
+ ['Ch 3','SDN / OpenFlow','A central controller programs switches\' flow tables (match fields + actions): forward, flood, drop, send to controller, modify.'],
+ ['Ch 4','Hidden-node problem','Two stations out of range of each other can still collide at a third — and neither can detect it.'],
+ ['Ch 4','Why Wi-Fi can\'t detect collisions','A remote signal can be ~10⁻⁶ of the transmitted power, drowned out while you transmit.'],
+ ['Ch 4','Link-layer ACK (Wi-Fi)','Receiver ACKs one SIFS later; no ACK means assume a collision and retransmit. No sequence number is used.'],
+ ['Ch 4','Wi-Fi timings (802.11b/g)','Slot 20 µs, DIFS/IFS 50 µs, SIFS 10 µs.'],
+ ['Ch 4','CSMA/CA','Collision <i>Avoidance</i>: random backoff (initially k<32, doubling to 1024) plus ACKs, rather than collision detection.'],
+ ['Ch 4','RTS/CTS','"May I send?" / "Go ahead" — used for big packets; the CTS tells hidden nodes how long to stay quiet.'],
+ ['Ch 4','Rate scaling','Drop the bit rate (54→48→…→6 Mbps) when errors rise; preambles and ACKs always use the minimum rate.'],
+ ['Ch 4','MIMO','Multiple antennas send several independent spatial streams, exploiting multipath. 802.11n ≤4 streams; 802.11ac ≤8.'],
+ ['Ch 4','WPA2-Personal vs Enterprise','Personal = one shared PSK for everyone. Enterprise = per-user credentials via 802.1X/EAP/RADIUS.'],
+ ['Ch 4','Four-way handshake & PTK','Exchanges nonces so both derive a session key PTK = hash(master key, nonces, MACs); proves both sides know the master key.'],
+ ['Ch 4','KRACK','Replays handshake message 3 to force key reinstallation, resetting the encryption nonce → keystream reuse. Fixed by ignoring replays.'],
+ ['Ch 4','WPA3 / SAE','Replaces the WPA2 handshake with SAE — defeats offline password guessing and adds forward secrecy.'],
+ ['Ch 4','Ranging','Measuring a subscriber\'s distance to the base station so uplink slots and power arrive correctly (WiMAX/LTE).'],
+ ['Ch 4','RACH','LTE network entry: pick one of 64 orthogonal preambles in a designated slot; the only time collisions can happen.'],
+ ['Ch 4','Multipath & OFDM','Radio bounces cause interference/fading. OFDM splits a wide band into many narrow subchannels and tolerates multipath well.'],
+ ['Ch 5','VPN & tunneling','A software virtual interface gets an internal IP; packets are encapsulated (and often encrypted) and sent over the Internet to a VPN server.'],
+ ['Ch 5','Carrier Ethernet','A leased point-to-point link that looks like Ethernet at the endpoints; the middle can be anything.'],
+ ['Ch 5','Token Ring','A token circulates the ring; transmit only when you hold it. Collision-free and perfectly fair (N stations get 1/N each).'],
+ ['Ch 5','Virtual circuit','Connection set up in advance; packets carry a connection ID (VCI), not a destination; each switch rewrites the VCI. VCIs are only unique per link.'],
+ ['Ch 5','Virtual circuit vs datagram','VC advantages: QoS guarantees, small headers, small voice packets. Datagram advantages: no per-connection state, resilient, easy rerouting, but hard to bill.'],
+ ['Ch 5','ATM cell','53 bytes = 48 data + 5 header. Fixed size, virtual-circuit switched, no cell reordering, no broadcast.'],
+ ['Ch 5','AAL5 vs AAL3/4','AAL5: 48-byte chunks, CRC-32 over the whole CS-PDU, 10% overhead. AAL3/4: 44-byte chunks, many CRC-10s, >20% overhead — yet less reliable.'],
+];
+
+/* ============================================================
+   CHEAT SHEET
+   ============================================================ */
+const CHEAT = `
+<h3>Ch 1 — Overview</h3>
+<ul>
+<li><b>Layers:</b> App → Transport → IP → Link (5-tier adds Physical; OSI adds Session+Presentation).</li>
+<li><b>Datagram forwarding</b> = ⟨destination, next_hop⟩ tables, stateless. <b>Virtual circuit</b> = connection ID instead.</li>
+<li><b>TTL</b> kills loops (set by sender, −1/router, drop at 0).</li>
+<li><b>Delay</b> = bandwidth + propagation + store-and-forward + queuing (only queuing is engineerable).</li>
+<li><b>MAC</b> = 48-bit, no location. <b>IP</b> = 32-bit, prefix + host, administratively assigned, CIDR.</li>
+<li><b>TCP</b> = reliable, ordered, sliding windows, Reno sawtooth. <b>UDP</b> = no setup, no retransmit (real-time).</li>
+</ul>
+<h3>Ch 2 — Ethernet</h3>
+<ul>
+<li><b>CSMA/CD</b>; slot time 512 b = 64 B = 51.2 µs; min frame 64 B, max data 1500 B; CRC-32.</li>
+<li><b>Backoff:</b> attempt N → k&lt;2ᴺ slots (cap 1024), give up at 16.</li>
+<li><b>Switches</b> learn ⟨source, port⟩, flood unknowns, isolate collision domains.</li>
+<li><b>MAC flooding</b> attack ↔ <b>port security</b>.</li>
+</ul>
+<h3>Ch 3 — Advanced Ethernet</h3>
+<ul>
+<li><b>Spanning tree:</b> root = smallest ID; BPDUs; prune redundant links; ~30 s convergence.</li>
+<li><b>VLAN:</b> 802.1Q tag (12-bit ID + 3-bit priority); needs a router between VLANs.</li>
+<li><b>TRILL/SPB:</b> all links active, shortest paths, IS-IS, RBridges, fast recovery.</li>
+<li><b>SDN/OpenFlow:</b> flow tables = match + action; controller programs the network.</li>
+</ul>
+<h3>Ch 4 — Wireless</h3>
+<ul>
+<li>Radio: no collision detection, hidden nodes, multipath, shared spectrum.</li>
+<li><b>CSMA/CA</b> + link-layer ACKs; slot 20 µs, DIFS 50 µs, SIFS 10 µs; backoff starts k&lt;32; RTS/CTS; rate scaling; MIMO.</li>
+<li><b>Security:</b> WEP → WPA → WPA2 (AES) → WPA3 (SAE). Four-way handshake ⇒ PTK; KRACK; 802.11w.</li>
+<li><b>Cellular:</b> base station schedules uplink; ranging; network entry (RACH) is the only collision source.</li>
+</ul>
+<h3>Ch 5 — Other LANs</h3>
+<ul>
+<li><b>VPN:</b> virtual interface + tunneling (+ encryption).</li>
+<li><b>Token Ring:</b> fair, collision-free talk stick.</li>
+<li><b>VC:</b> VCI rewritten per link; QoS-friendly but stateful. <b>ATM:</b> 48+5 cell; AAL5 (48 B, CRC-32, 10%) beats AAL3/4 (44 B, CRC-10, >20%).</li>
+</ul>
+`;
+
+/* ============================================================
+   UI: tabs
+   ============================================================ */
+const TABS=[
+  {id:'cram',   label:'⏱ 40 min'},
+  {id:'start',  label:'Start here'},
+  {id:'drills', label:'Drills'},
+  {id:'learn',  label:'Walkthroughs'},
+  {id:'cards',  label:'Flashcards'},
+  {id:'cheat',  label:'Cheat sheet'},
+];
+let tab='start';
+const main=$('#main');
+
+function renderNav(){
+  $('#nav').innerHTML=TABS.map(t=>`<button data-t="${t.id}" class="${t.id===tab?'on':''}">${t.label}</button>`).join('');
+  $('#nav').onclick=e=>{ if(e.target.dataset.t){ tab=e.target.dataset.t; renderNav(); render(); } };
+}
+function render(){
+  main.innerHTML='';
+  main.onclick=null;
+  if(tab==='cram') renderCram();
+  else if(tab==='start') renderStart();
+  else if(tab==='drills') renderDrills();
+  else if(tab==='learn') renderLearn();
+  else if(tab==='cards') renderCards();
+  else renderCheat();
+}
+
+/* ---------- 40-minute cram ---------- */
+function gotoDrill(id){
+  tab='drills'; cur=null; renderNav(); render();
+  const spec=DRILLS.find(d=>d.id===id);
+  if(spec) showProblem(spec);
+  try{ document.getElementById('prob').scrollIntoView({block:'start'}); }catch(e){}
+}
+function gotoExample(id){
+  tab='learn'; renderNav(); render();
+  const el=document.getElementById('ex-'+id);
+  if(el){ el.open=true; try{ el.scrollIntoView({block:'start'}); }catch(e){} }
+}
+function gotoCards(ch){ filter=ch||'All'; deck=null; tab='cards'; renderNav(); render(); }
+function gotoCheat(){ tab='cheat'; renderNav(); render(); }
+
+function renderCram(){
+  const rows=[
+    {t:'0–3', title:'Skim the cheat sheet', desc:'Do not read it carefully. Just let the vocabulary wash over you.',
+     btns:[['cheat','Cheat sheet']]},
+    {t:'3–9', title:'Forwarding tables (highest-yield)', desc:'Walkthrough, then 2 drill reps. Rule: next hop = neighbour on a shortest path; direct if the host is on this switch.',
+     btns:[['ex:wf','Walkthrough'],['dr:forward','Drill']]},
+    {t:'9–15', title:'Learning switches (highest-yield)', desc:'Walkthrough, then 2 reps. Learn the SOURCE + arrival port; flood if the destination is unknown.',
+     btns:[['ex:wl','Walkthrough'],['dr:learning','Drill']]},
+    {t:'15–21', title:'Spanning tree', desc:'Walkthrough + 1 rep. Root = smallest ID; keep the shortest-path tree; prune the rest.',
+     btns:[['ex:ws','Walkthrough'],['dr:spanning','Drill']]},
+    {t:'21–26', title:'Exponential backoff', desc:'Walkthrough + 1 rep. Attempt N → random k < 2ᴺ slots; give up at 16.',
+     btns:[['ex:wb','Walkthrough'],['dr:backoff','Drill']]},
+    {t:'26–31', title:'Wi-Fi collisions', desc:'Hidden node: collision happens at the middle receiver, not at the senders. Contention cost = slots × 20 µs.',
+     btns:[['dr:hidden','Hidden node'],['dr:contention','Contention']]},
+    {t:'31–36', title:'Ch 5 procedures', desc:'VCI = rewrite per switch, table keyed by ⟨VCI, port⟩. ATM: 48 data + 5 header. Token Ring: N/2 token passes on average.',
+     btns:[['dr:vci','VCI'],['dr:atm','ATM'],['dr:token','Token Ring']]},
+    {t:'36–40', title:'Final sweep', desc:'Flashcards on your weakest chapter, then leave the cheat sheet open.',
+     btns:[['cards','Flashcards'],['cheat','Cheat sheet']]},
+  ];
+  main.innerHTML=`
+  <div class="card">
+    <h2>40-minute triage</h2>
+    <p>You cannot learn five chapters in 40 minutes. You <i>can</i> learn the five <b>procedures</b> that most textbook
+    exercises ask you to perform. Do the left column in order; skip anything that isn't listed.</p>
+    <p class="pill">If you only have 10 minutes: rows 2, 3 and 4 (forwarding, learning switches, spanning tree).</p>
+    ${rows.map(r=>`
+      <div style="display:flex;gap:14px;padding:12px 0;border-top:1px solid var(--line)">
+        <div style="min-width:62px;color:var(--warn);font-weight:700;font-size:13px">${r.t}<div class="pill">min</div></div>
+        <div style="flex:1">
+          <b>${r.title}</b>
+          <div class="pill" style="margin:2px 0 6px">${r.desc}</div>
+          <div>${r.btns.map(([a,label])=>`<button class="act ghost" style="padding:6px 12px;font-size:13px" data-cram="${a}">${label}</button>`).join('')}</div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <div class="card">
+    <h2>Survival facts (if a concept question appears)</h2>
+    <ul>
+      <li><b>Layers:</b> App → Transport → IP → Link. TCP = reliable/ordered; UDP = no setup, no retransmit.</li>
+      <li><b>Datagram forwarding</b> looks up the destination and keeps no state. <b>Virtual circuit</b> looks up a connection ID and rewrites it.</li>
+      <li><b>TTL</b> stops routing loops. Most Internet loss is <b>congestion</b>, not corruption.</li>
+      <li><b>Ethernet = CSMA/CD</b> (detect collisions). <b>Wi-Fi = CSMA/CA</b> (avoid them, because radio can't detect them).</li>
+      <li><b>Switch:</b> learn source, flood unknown, isolate collision domains. <b>Spanning tree:</b> root = smallest ID, prunes loops.</li>
+      <li><b>Hidden node:</b> two senders out of range of each other collide at a third. Fixed by RTS/CTS.</li>
+      <li><b>VCI</b> is only unique per link. <b>ATM</b> is 48+5 bytes. <b>Token Ring</b> is collision-free and fair.</li>
+    </ul>
+  </div>`;
+  main.onclick=e=>{
+    const a=e.target.dataset.cram; if(!a) return;
+    if(a==='cheat') return gotoCheat();
+    if(a==='cards') return gotoCards('All');
+    if(a.startsWith('dr:')) return gotoDrill(a.slice(3));
+    if(a.startsWith('ex:')) return gotoExample(a.slice(3));
+  };
+}
+
+/* ---------- Start ---------- */
+function renderStart(){
+  main.innerHTML=`
+  <div class="card">
+    <h2>How to use this in 3 days</h2>
+    <p class="pill">Everything here maps to the textbook exercises for Ch. 1–5.</p>
+    <ol>
+      <li><b>Day 1 — concepts.</b> Open <b>Flashcards</b>, filter by a chapter, and go through until you can say the answer out loud without flipping.</li>
+      <li><b>Day 2 — methods.</b> Open <b>Walkthroughs</b> and click through all 10. These are the exact procedures the exercises test:
+          forwarding tables, learning switches, backoff, spanning tree, prefix match, Wi-Fi, VCIs, ATM, WPA2, VPN.</li>
+      <li><b>Day 3 — reps.</b> Open <b>Drills</b> and hammer each generator until you get 3 in a row right. Numbers are randomised, so you can't memorise answers.</li>
+    </ol>
+    <p>Keep the <b>Cheat sheet</b> tab open as a reference, not as your main study tool.</p>
+  </div>
+
+  <div class="card">
+    <h2>The 5 things to remember</h2>
+    <ul>
+      <li><b>Ch 1:</b> Layers are a delivery company (app → transport → IP → link). Datagram = address in packet; virtual circuit = connection ID.</li>
+      <li><b>Ch 2:</b> Ethernet is a shared street: listen before talking, back off randomly on a collision, and switches kill collisions by learning where each address lives.</li>
+      <li><b>Ch 3:</b> Big Ethernets use spanning trees (turn off loops), VLANs (separate groups with tags), and SDN (a controller tells switches what to do).</li>
+      <li><b>Ch 4:</b> Radio can't detect collisions, so Wi-Fi avoids them (ACKs + backoff + RTS/CTS) and secures them (WPA2/WPA3).</li>
+      <li><b>Ch 5:</b> Virtual circuits (and ATM) trade the Internet's "no memory" for reserved connections that can guarantee quality.</li>
+    </ul>
+    <p class="pill">Tip: after each drill, read the solution even when you got it right — the reasoning is what the exam wants.</p>
+  </div>`;
+}
+
+/* ---------- Drills ---------- */
+let cur=null;
+function renderDrills(){
+  main.innerHTML=`
+  <div class="card">
+    <h2>Practice drills</h2>
+    <p class="pill">Auto-generated, so every attempt is a new problem. Pick one:</p>
+    <div class="grid" id="dl"></div>
+  </div>
+  <div id="prob"></div>`;
+  const dl=$('#dl');
+  DRILLS.forEach(d=>{
+    const b=document.createElement('div');
+    b.className='drill';
+    b.innerHTML=`<span class="ch">${d.ch}</span><b>${d.name}</b><small>new problem each click</small>`;
+    b.onclick=()=>showProblem(d);
+    dl.appendChild(b);
+  });
+  if(cur) showProblem(cur.spec, true);
+}
+function showProblem(spec, keep){
+  cur={spec, data:spec.fn()};
+  renderProblem();
+}
+function renderProblem(){
+  const d=cur.data, spec=cur.spec, host=$('#prob');
+  let body='';
+  if(d.kind==='num'){
+    body=`<div class="row"><input id="in" type="number" step="any" placeholder="${d.unit||''}">
+          <button class="act" id="check">Check</button></div>`;
+  } else if(d.kind==='mc'){
+    body=d.options.map((o,i)=>`<button class="opt" data-i="${i}">${o.text}</button>`).join('');
+  } else if(d.kind==='multi'){
+    body=d.options.map((o,i)=>`<label class="opt" style="cursor:pointer"><input type="checkbox" data-i="${i}">${o.text}</label>`).join('')
+        +`<button class="act" id="check">Check</button>`;
+  } else {
+    body=`<button class="act" id="check">Show answer</button>`;
+  }
+  host.innerHTML=`
+  <div class="card">
+    <span class="ch">${spec.ch}</span>
+    <h2>${d.title}</h2>
+    <div>${d.q}</div>
+    <div id="ansarea" style="margin-top:12px">${body}</div>
+    <div id="solbox"></div>
+    <div style="margin-top:10px">
+      <button class="act ghost" id="newp">New problem</button>
+    </div>
+  </div>`;
+  $('#newp').onclick=()=>showProblem(spec);
+  const check=$('#check');
+  if(d.kind==='num'){
+    check.onclick=()=>{
+      const v=parseFloat($('#in').value);
+      if(isNaN(v)){ $('#in').focus(); return; }
+      const tol=d.tol??Math.max(0.05,Math.abs(d.ans)*0.02);
+      const ok=Math.abs(v-d.ans)<=tol;
+      finish(ok,`Your answer: <b>${v}</b>${d.unit?' '+d.unit:''} — correct is <b>${fmt(d.ans,3)}${d.unit?' '+d.unit:''}</b>.`);
+    };
+  } else if(d.kind==='mc'){
+    host.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.i;
+      host.querySelectorAll('.opt').forEach(x=>{x.classList.remove('ok','no');x.disabled=true;});
+      host.querySelector('.opt[data-i="'+d.ans+'"]').classList.add('ok');
+      if(i!==d.ans) b.classList.add('no');
+      finish(i===d.ans);
+    });
+  } else if(d.kind==='multi'){
+    check.onclick=()=>{
+      const chosen=[]; host.querySelectorAll('input[type=checkbox]').forEach(c=>{if(c.checked)chosen.push(+c.dataset.i);});
+      const good=[...d.ans].sort().join(',')===chosen.sort().join(',');
+      host.querySelectorAll('input[type=checkbox]').forEach(c=>{
+        const i=+c.dataset.i, want=d.ans.includes(i);
+        c.parentElement.classList.toggle('ok',want);
+        c.parentElement.classList.toggle('no',c.checked&&!want);
+        c.disabled=true;
+      });
+      check.disabled=true;
+      finish(good);
+    };
+  } else {
+    check.onclick=()=>{ check.disabled=true; finish(null); };
+  }
+}
+function finish(ok, note){
+  const d=cur.data;
+  const box=$('#solbox');
+  const flag = ok===null ? '' : `<span class="flag ${ok?'g':'b'}">${ok?'✓ correct':'✗ not quite'}</span> `;
+  box.innerHTML=`<div class="sol ${ok===null?'':ok?'good':'wrong'}">${flag}${note||''}${ok===false?'<br>':''}${d.sol}</div>`;
+  // stats (never let a blocked file:// localStorage break the app)
+  try{
+    const s=JSON.parse(localStorage.getItem('nst')||'{}');
+    s[cur.spec.id]=s[cur.spec.id]||{a:0,c:0};
+    if(ok!==null){ s[cur.spec.id].a++; if(ok) s[cur.spec.id].c++; }
+    localStorage.setItem('nst',JSON.stringify(s));
+  }catch(e){ /* ignore */ }
+}
+
+/* ---------- Walkthroughs ---------- */
+function renderLearn(){
+  main.innerHTML=`<div class="card"><h2>Step-through walkthroughs</h2>
+    <p class="pill">Each is the exact method a textbook exercise expects. Reveal one step at a time.</p>
+    <div id="ex"></div></div>`;
+  const box=$('#ex');
+  EXAMPLES.forEach(ex=>{
+    const el=document.createElement('details');
+    el.id='ex-'+ex.id;
+    el.innerHTML=`<summary><span class="ch">${ex.ch}</span> <b>${ex.title}</b></summary>
+      <div id="s-${ex.id}" class="wl"></div>
+      <div class="row">
+        <button class="act" data-next="${ex.id}">Next step ▸</button>
+        <button class="act ghost" data-reset="${ex.id}">Reset</button>
+        <span class="pill" data-count="${ex.id}"></span>
+      </div>`;
+    box.appendChild(el);
+  });
+  EXAMPLES.forEach(updateCount);
+  box.onclick=e=>{
+    const nx=e.target.dataset.next, rs=e.target.dataset.reset;
+    if(nx){ const ex=EXAMPLES.find(x=>x.id===nx); const target=$('#s-'+nx);
+      const shown=target.children.length;
+      if(shown<ex.steps.length){ const p=document.createElement('p'); p.innerHTML=ex.steps[shown]; target.appendChild(p); }
+      updateCount(ex);
+    }
+    if(rs){ $('#s-'+rs).innerHTML=''; updateCount(EXAMPLES.find(x=>x.id===rs)); }
+  };
+}
+function updateCount(ex){
+  const n=$('#s-'+ex.id).children.length;
+  document.querySelector(`[data-count="${ex.id}"]`).textContent=`${n}/${ex.steps.length} steps`;
+}
+
+/* ---------- Flashcards ---------- */
+let deck=null, di=0, flipped=false, filter='All';
+function cardChapters(){ return ['All',...new Set(CARDS.map(c=>c[0]))]; }
+function buildDeck(){
+  deck = shuffle(CARDS.filter(c=>filter==='All'||c[0]===filter));
+  di=0; flipped=false;
+}
+function renderCards(){
+  if(!deck) buildDeck();
+  const c=deck[di];
+  main.innerHTML=`
+  <div class="card">
+    <h2>Flashcards</h2>
+    <div class="row">
+      <span class="pill">Filter:</span>
+      ${cardChapters().map(ch=>`<button class="act ghost" data-f="${ch}" style="padding:5px 12px;font-size:13px;${ch===filter?'border-color:#5b8def;color:#e8eefc':''}">${ch}</button>`).join('')}
+      <button class="act" data-shuffle="1" style="padding:5px 12px;font-size:13px">Shuffle</button>
+    </div>
+    <p class="pill" style="margin-top:8px">Card ${di+1} / ${deck.length} · click the card to flip</p>
+    <div class="fc" id="fc">${ flipped ? `<div class="a"><small class="pill">${c[0]}</small><br><b>${c[2]}</b></div>` : `<div><small class="pill">${c[0]}</small><br><b>${c[1]}</b></div>` }</div>
+    <div class="row">
+      <button class="act" data-mv="-1">◂ Prev</button>
+      <button class="act" data-mv="1">Next ▸</button>
+      <button class="act ghost" data-mv="r">Shuffle</button>
+    </div>
+  </div>`;
+  $('#fc').onclick=()=>{ flipped=!flipped; renderCards(); };
+  main.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{ filter=b.dataset.f; buildDeck(); renderCards(); });
+  main.querySelectorAll('[data-shuffle]').forEach(b=>b.onclick=()=>{ deck=shuffle(deck); di=0; flipped=false; renderCards(); });
+  main.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{
+    const m=b.dataset.mv;
+    if(m==='r'){ deck=shuffle(deck); di=0; } else { di=(di+ +m+deck.length)%deck.length; }
+    flipped=false; renderCards();
+  });
+}
+
+/* ---------- Cheat sheet ---------- */
+function renderCheat(){ main.innerHTML=`<div class="card"><h2>Cheat sheet</h2>${CHEAT}</div>`; }
+
+renderNav(); render();
+</script>
+</body>
+</html>
